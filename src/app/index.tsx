@@ -1,6 +1,43 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, TextInput, ScrollView, Pressable, SafeAreaView } from 'react-native';
+import { 
+  StyleSheet, 
+  Text, 
+  View, 
+  Image, 
+  TextInput, 
+  ScrollView, 
+  Pressable, 
+  SafeAreaView 
+} from 'react-native';
 
+// 1. Separate StudentCard Component (Requirement 1 & 2)
+function StudentCard({ id, name, year, photoUrl, flagged, onToggleFlag }: any) {
+  return (
+    <View style={styles.card}>
+      <Image source={{ uri: photoUrl }} style={styles.avatar} />
+      
+      <View style={styles.infoContainer}>
+        <Text style={styles.name}>{name}</Text>
+        <Text style={styles.year}>{year}</Text>
+      </View>
+
+      <Pressable 
+        onPress={() => onToggleFlag(id)}
+        style={({ pressed }) => [
+          styles.flagButton,
+          flagged ? styles.flaggedActive : styles.flaggedInactive,
+          pressed && { opacity: 0.7 }
+        ]}
+      >
+        <Text style={flagged ? styles.flagTextActive : styles.flagTextInactive}>
+          {flagged ? "★ Flagged" : "☆ Flag"}
+        </Text>
+      </Pressable>
+    </View>
+  );
+}
+
+// 2. Parent StudentDirectory Component (Requirement 3, 4, 5)
 export default function StudentDirectory() {
   const [query, setQuery] = useState("");
   const [students, setStudents] = useState([
@@ -11,7 +48,7 @@ export default function StudentDirectory() {
     { id: "s5", name: "Eli Tan", year: "3rd Year", photoUrl: "https://i.pravatar.cc/100?img=5", flagged: false },
   ]);
 
-  const handleToggleFlag = (id) => {
+  const handleToggleFlag = (id: string) => {
     setStudents(prevStudents =>
       prevStudents.map(student =>
         student.id === id ? { ...student, flagged: !student.flagged } : student
@@ -40,27 +77,15 @@ export default function StudentDirectory() {
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {filteredStudents.map(student => (
-          <View key={student.id} style={styles.card}>
-            <Image source={{ uri: student.photoUrl }} style={styles.avatar} />
-            
-            <View style={styles.infoContainer}>
-              <Text style={styles.name}>{student.name}</Text>
-              <Text style={styles.year}>{student.year}</Text>
-            </View>
-
-            <Pressable 
-              onPress={() => handleToggleFlag(student.id)}
-              style={({ pressed }) => [
-                styles.flagButton,
-                student.flagged ? styles.flaggedActive : styles.flaggedInactive,
-                pressed && { opacity: 0.7 }
-              ]}
-            >
-              <Text style={student.flagged ? styles.flagTextActive : styles.flagTextInactive}>
-                {student.flagged ? "★ Flagged" : "☆ Flag"}
-              </Text>
-            </Pressable>
-          </View>
+          <StudentCard
+            key={student.id}
+            id={student.id}
+            name={student.name}
+            year={student.year}
+            photoUrl={student.photoUrl}
+            flagged={student.flagged}
+            onToggleFlag={handleToggleFlag}
+          />
         ))}
       </ScrollView>
     </SafeAreaView>
